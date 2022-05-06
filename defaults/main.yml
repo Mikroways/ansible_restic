@@ -1,0 +1,31 @@
+---
+# defaults file for skeleton
+restic_url: '{{ restic_url_default }}'
+restic_version: '0.12.0'
+restic_download_path: '/opt/restic'
+restic_install_path: '/usr/bin'
+restic_cache_dir: /var/cache/restic
+restic_script_dir: '{{ restic_download_path }}/scripts'
+restic_repos: {}
+restic_backups: []
+restic_create_systemd_timer: false
+
+restic_dir_owner: '{{ ansible_user | default(ansible_user_id) }}'
+restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'
+
+restic_access_template: restic_access.j2
+restic_backup_template: restic_backup.j2
+restic_prune_template: restic_prune.j2
+restic_systemd_timer_template: systemd_timer.unit.j2
+restic_systemd_service_template: systemd_service.unit.j2
+restic_systemd_failure_service_template: systemd_failure.unit.j2
+restic_systemd_failure_service_name: restic-backup-failure@.service
+
+restic_prometehus_exporter_enabled: false
+restic_prometehus_exporter_template: restic_prometehus_exporter.j2
+restic_prometehus_exporter_script: '{{ restic_script_dir }}/restic_prometehus_exporter.sh'
+restic_prometehus_exporter_metrics_file: /var/lib/node-exporter/restic-backup.prom
+
+restic_failure_template:  restic_failure_unit.j2
+restic_failure_script:  '{{restic_script_dir }}/unit-failure'
+restic_failure_mail_to: "root"

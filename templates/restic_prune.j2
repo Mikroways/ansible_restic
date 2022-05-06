@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+# Backup script for {{ item.src|default('stdin') }}
+# Use this file to create a Backup and prune existing data with one execution.
+set -ueo pipefail
+
+source {{ restic_script_dir }}/access-{{ item.name }}.sh
+
+restic check
+{#
+  Define path
+#}
+{% macro path(repo) -%}
+  {% if repo.src is defined and repo.src != None and (repo.src|length>0)  %}{{ repo.src }}{% else %}{{ repo.stdin_filename }}{% endif %}
+{%- endmacro %}
+{#
+  Define retention pattern
+#}
+{% macro retention_pattern(repo) -%}
+  {% if repo.keep_last is defined and repo.keep_last != None %}--keep-last {{ item.keep_last }}{% endif %} \
+  {% if repo.keep_hourly is defined and repo.keep_hourly != None %}--keep-hourly {{ item.keep_hourly }}{% endif %} \
+  {% if repo.keep_daily is defined and repo.keep_daily != None %}--keep-daily {{ item.keep_daily }}{% endif %} \
+  {% if repo.keep_weekly is defined and repo.keep_weekly != None %}--keep-weekly {{ item.keep_weekly }}{% endif %} \
+  {% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }}{% endif %} \
+  {% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }}{% endif %} \
+  {% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }}{% endif %} \
+  {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %}
+{%- endmacro %}
+{#
+  Define stdin forget commands
+#}
+{{ restic_install_path }}/restic forget --path {{ path(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %}
+
+echo "Finished pruning at $(date -u '+%Y-%m-%d %H:%M:%S')"

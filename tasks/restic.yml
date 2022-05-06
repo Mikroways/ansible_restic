@@ -1,0 +1,90 @@
+---
+- name: Reformat dict if necessary
+  set_fact:
+    restic_backups: '{{ restic_backups|dict2items|json_query("[*].value") }}'
+  when:
+    - restic_backups | type_debug == "dict"
+
+- name: Create backup credentials
+  template:
+    src: '{{ restic_access_template }}'
+    dest: '{{ restic_script_dir }}/access-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{ restic_dir_owner }}'
+    group: '{{ restic_dir_group }}'
+  no_log: true
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+    - item.src is defined or item.stdin is defined
+    - item.src is defined or item.stdin and item.stdin_cmd is defined
+    - item.repo in restic_repos
+
+- name: Create backup script
+  template:
+    src: '{{ restic_backup_template }}'
+    dest: '{{ restic_script_dir }}/backup-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{ restic_dir_owner }}'
+    group: '{{ restic_dir_group }}'
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+    - item.src is defined or item.stdin is defined
+    - item.src is defined or item.stdin and item.stdin_cmd is defined
+    - item.repo in restic_repos
+
+- name: Create prune script
+  template:
+    src: '{{ restic_prune_template }}'
+    dest: '{{ restic_script_dir }}/prune-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{ restic_dir_owner }}'
+    group: '{{ restic_dir_group }}'
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+    - item.src is defined or item.stdin is defined
+    - item.src is defined or item.stdin and item.stdin_cmd is defined
+    - item.repo in restic_repos
+
+- name: Configure prometehus exporter
+  when: restic_prometehus_exporter_enabled
+  block:
+    - name: Configure prometehus exporter script
+      template:
+        src: '{{ restic_prometehus_exporter_template }}'
+        dest: '{{ restic_prometehus_exporter_script }}'
+        mode: '0700'
+        owner: '{{ restic_dir_owner }}'
+        group: '{{ restic_dir_group }}'
+    - name: Ensure prometehus metrics file can be created
+      file:
+        state: 'directory'
+        path: '{{ restic_prometehus_exporter_metrics_file | dirname }}'
+        mode: '0755'
+        owner: 'root'
+        group: 'root'
+
+- name: Setup systemd 
+  block:
+    - name: "Add systemd failure for restic"
+      template:
+        src: "{{ restic_systemd_failure_service_template }}"
+        dest: "/etc/systemd/system/{{ restic_systemd_failure_service_name }}"
+        mode: "0644"
+        owner: root
+        group: root
+      notify:
+        - Reload systemd
+
+    - name: "Add unit failure script for restic"
+      template:
+        src: "{{ restic_failure_template }}"
+        dest: "{{ restic_failure_script }}"
+        mode: "0700"
+        owner: root
+        group: root
+    - name: Create systemd units per backup
+      include: 'systemd.yml'
+      with_items: '{{ restic_backups }}'

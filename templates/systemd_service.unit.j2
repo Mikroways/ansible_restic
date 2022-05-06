@@ -1,0 +1,29 @@
+[Unit]
+Description=Run backup job for {{ item.name }}
+Documentation=https://restic.readthedocs.io/en/stable/
+Requires=local-fs.target
+Requires=network.target
+OnFailure={{ restic_systemd_failure_service_name | splitext | first }}%n
+{% for m in item.requiredMounts | default([])%}
+RequiresMountsFor= {{ m }}
+{% endfor %}
+
+[Service]
+Type=oneshot
+ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
+ExecStartPost={{ restic_script_dir }}/prune-{{ item.name }}.sh
+{% if restic_prometehus_exporter_enabled %}
+ExecStartPost={{ restic_prometehus_exporter_script }} %n
+{% endif %}
+
+# Security hardening (see man 7 systemd.exec)
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=full
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ProtectControlGroups=true
+PrivateDevices=true
+MemoryDenyWriteExecute=true
+ReadWritePaths={{ restic_cache_dir }} {{ restic_prometehus_exporter_metrics_file | dirname}}

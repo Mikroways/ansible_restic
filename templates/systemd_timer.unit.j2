@@ -1,0 +1,12 @@
+[Unit]
+Description=Activates Backup Job for {{ item.name }}
+
+[Timer]
+# see man 7 systemd.time for possible formats
+{% for s in item.schedules %}
+OnCalendar={{ s }}
+{% endfor %}
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

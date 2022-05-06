@@ -1,0 +1,42 @@
+---
+- name: Download restic
+  get_url:
+    url: '{{ restic_url }}'
+    dest: '{{ restic_download_path }}/restic.bz2'
+    force: true
+  register: get_url_restic
+
+- name: Install restuc
+  shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }} && rm -f {{ get_url_restic.dest }}"
+
+- name: Ensure permissions are correct
+  file:
+    path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+    mode: '0755'
+    owner: '{{ restic_dir_owner }}'
+    group: '{{ restic_dir_group }}'
+
+- name: Test the binary
+  shell: "{{ restic_bin_bath }} version | grep restic"
+  ignore_errors: true
+  register: restic_test_result
+
+- name: Remove faulty binary
+  file:
+    path: '{{ restic_bin_bath }}'
+    state: absent
+  when: restic_test_result.rc != 0
+
+- name: Fail if restic could not be installed
+  fail:
+    msg: >-
+      Restic binary has been faulty and has been removed.
+      Try to re-run the role and make sure you have bzip2 installed!
+  when: restic_test_result.rc != 0
+
+- name: Create symbolic link to the correct version
+  file:
+    src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+    path: '{{ restic_install_path }}/restic'
+    state: link
+    force: true
