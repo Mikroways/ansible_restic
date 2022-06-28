@@ -38,9 +38,9 @@
   register: restic_installed
 
 - name: Install restic
-  include: 'install.yml'
+  import_tasks: 'install.yml'
   when: not restic_executable.stat.exists or not restic_installed.stat.exists
     or restic_executable.stat.size == 0
 
 - name: Configure restic scripts and scheduler
-  include: 'restic.yml'
+  import_tasks: 'restic.yml'

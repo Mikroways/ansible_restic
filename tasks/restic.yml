@@ -66,8 +66,15 @@
         owner: 'root'
         group: 'root'
 
-- name: Setup systemd 
+- name: Setup systemd
   block:
+    - name: "Add unit failure script for restic"
+      template:
+        src: "{{ restic_failure_template }}"
+        dest: "{{ restic_failure_script }}"
+        mode: "0700"
+        owner: root
+        group: root
     - name: "Add systemd failure for restic"
       template:
         src: "{{ restic_systemd_failure_service_template }}"
@@ -77,14 +84,8 @@
         group: root
       notify:
         - Reload systemd
-
-    - name: "Add unit failure script for restic"
-      template:
-        src: "{{ restic_failure_template }}"
-        dest: "{{ restic_failure_script }}"
-        mode: "0700"
-        owner: root
-        group: root
+      tags:
+        - molecule-idempotence-notest
     - name: Create systemd units per backup
-      include: 'systemd.yml'
+      include_tasks: 'systemd.yml'
       with_items: '{{ restic_backups }}'

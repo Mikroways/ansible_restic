@@ -12,12 +12,6 @@ source {{ restic_script_dir }}/access-{{ item.name }}.sh
   {% if tags is defined and (tags|length>0) %}{% for tag in tags %} --tag {{ tag }}{% endfor %}{% endif %}
 {%- endmacro %}
 {#
-  Define Keeped Tags
-#}
-{% macro keep_tags(tags) -%}
-  {% if tags is defined and (tags|length>0) %}{% for tag in tags %} --keep-tag {{ tag }}{% endfor %}{% endif %}
-{%- endmacro %}
-{#
   Define Hostname
 #}
 {% macro hostname(h) -%}

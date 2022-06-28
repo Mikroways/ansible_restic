@@ -4,7 +4,7 @@ This role was inspired by the excelent article from
 [Jack Henschel, Restic Backups with Systemd and Prometheus exporter](https://blog.cubieserver.de/2021/restic-backups-with-systemd-and-prometheus-exporter/).
 I've also found an inspiration from other existing roles as: [arsillio.restic](https://github.com/arillso/ansible.restic)
 but evolving from cron to systemd was my objective, so I've decided to write
-this new role as a composition of ideas. 
+this new role as a composition of ideas.
 
 ## Description
 
@@ -34,7 +34,7 @@ So the fact is that you will be using this role to:
 
 This role will create as many backup scripts as you define. For each defined
 backup, you will get three scripts:
-* One with restic credentials 
+* One with restic credentials
 * Other with restic backup script and eventually a repository initialization
 * The last one will prune your backups
 
@@ -44,7 +44,7 @@ This scripts will be stored in a configurable scripts directory:
 ## Requirements
 
 * bzip2
-  
+
 ## Role Variables
 
 | Name                            | Default         | Description                                                                 |
@@ -81,7 +81,7 @@ to be able to use this role. A repository can be local or remote (see the
 official [documentation](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html)).
 
 > **Using an SFTP repository**
-> 
+>
 > For using an SFTP backend, the user needs passwordless access to the host.
 > Please make sure to distribute ssh keys accordingly, as this is outside of
 > the scope of this role.

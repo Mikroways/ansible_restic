@@ -1,0 +1,9 @@
+---
+exclude_paths:
+  - molecule/
+  - .tox/
+  - .cache/
+  - .direnv/
+  - .pre-commit-config.yaml
+  - .github/
+offline: true

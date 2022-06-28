@@ -1,0 +1,7 @@
+jmespath
+tox==3.25.0
+ansible==5.*
+molecule[docker]
+docker == 5.*
+ansible-lint == 5.*
+yamllint == 1.26.*

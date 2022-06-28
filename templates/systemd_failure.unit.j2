@@ -4,7 +4,7 @@ Requires=network.target
 
 [Service]
 Type=oneshot
-# Email notification with logs (%I is systemd unit name)
+# Email notification with logs (%i is systemd unit name)
 ExecStartPre=-{{ restic_failure_script }} %i.service {{ restic_failure_mail_to }}
 {% if restic_prometehus_exporter_enabled %}
 ExecStart={{ restic_prometehus_exporter_script }} %i.service

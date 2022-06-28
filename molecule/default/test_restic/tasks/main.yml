@@ -1,0 +1,14 @@
+---
+- name: "include tasks for testing backup files"
+  include_tasks: "test_backup_files.yml"
+  with_items:
+    - backup-dicttest.sh
+    - backup-test.sh
+    - backup-test_stdin.sh
+
+- name: "include tasks for testing access files"
+  include_tasks: "test_access_files.yml"
+  with_items:
+    - access-dicttest.sh
+    - access-test.sh
+    - access-test_stdin.sh

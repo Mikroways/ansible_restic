@@ -3,6 +3,7 @@
 # Backup credentials for {{ item.src|default('stdin') }}
 # Source this file to work with restic on this host
 
+export PATH="{{ restic_install_path }}:$PATH"
 export RESTIC_CACHE_DIR={{ restic_cache_dir }}
 export RESTIC_REPOSITORY={{ restic_repos[item.repo].location }}
 export RESTIC_PASSWORD='{{ restic_repos[item.repo].password | regex_replace('\'', '\'\\\'\'') }}'

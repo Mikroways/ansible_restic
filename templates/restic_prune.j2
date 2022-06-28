@@ -8,6 +8,12 @@ source {{ restic_script_dir }}/access-{{ item.name }}.sh
 
 restic check
 {#
+  Define Keeped Tags
+#}
+{% macro keep_tags(tags) -%}
+  {% if tags is defined and (tags|length>0) %}{% for tag in tags %} --keep-tag {{ tag }}{% endfor %}{% endif %}
+{%- endmacro %}
+{#
   Define path
 #}
 {% macro path(repo) -%}
