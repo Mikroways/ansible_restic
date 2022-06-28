@@ -1,5 +1,5 @@
 jmespath
-tox==3.25.0
+tox==4.0.0b2
 ansible==5.*
 molecule[docker]
 docker == 5.*

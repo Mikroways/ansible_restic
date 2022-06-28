@@ -1,0 +1,37 @@
+---
+name: Tests
+on:
+  push:
+    paths:
+      - defaults/**
+      - handlers/**
+      - meta/**
+      - molecule/**
+      - tasks/**
+      - templates/**
+      - vars/**
+      - .github/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        py:
+          - "3.10"
+          - "3.9"
+    steps:
+      - name: Setup python for test ${{ matrix.py }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.py }}
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install pip requirements
+        run: pip install -r requirements.txt
+      - name: Run tox tests
+        run: tox run
