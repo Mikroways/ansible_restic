@@ -20,6 +20,7 @@ jobs:
     name: Linting
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         py:
           - "3.10"
