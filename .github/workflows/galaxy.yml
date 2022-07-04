@@ -2,13 +2,9 @@
 name: 🌌 Galaxy import
 
 on:
-  push:
-    branches:
-      - master
   release:
     types:
       - published
-
 jobs:
   import:
     name: 🚀 Galaxy Action
