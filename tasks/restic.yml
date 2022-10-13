@@ -61,7 +61,7 @@
     - name: Ensure prometehus metrics file can be created
       file:
         state: 'directory'
-        path: '{{ restic_prometehus_exporter_metrics_file | dirname }}'
+        path: '{{ restic_prometehus_exporter_metrics_basedir }}'
         mode: '0755'
         owner: 'root'
         group: 'root'

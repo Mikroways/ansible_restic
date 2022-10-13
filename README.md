@@ -69,7 +69,7 @@ This scripts will be stored in a configurable scripts directory:
 | `restic_prometehus_exporter_enabled` | `false` ||
 | `restic_prometehus_exporter_template`| `restic_prometehus_exporter.j2` ||
 | `restic_prometehus_exporter_script` | `{{ restic_script_dir }}/restic_prometehus_exporter.sh` ||
-| `restic_prometehus_exporter_metrics_file` | `/var/lib/node-exporter/restic-backup.prom` ||
+| `restic_prometehus_exporter_metrics_basedir` | `/var/lib/node-exporter` ||
 | `restic_failure_template` | `restic_failure_unit.j2` ||
 | `restic_failure_script` | `{{restic_script_dir }}/unit-failure` ||
 | `restic_failure_mail_to` | `root` ||

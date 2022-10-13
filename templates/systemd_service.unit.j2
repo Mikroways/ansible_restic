@@ -26,4 +26,4 @@ ProtectControlGroups=true
 ProtectControlGroups=true
 PrivateDevices=true
 MemoryDenyWriteExecute=true
-ReadWritePaths={{ restic_cache_dir }} {{ restic_prometehus_exporter_metrics_file | dirname}}
+ReadWritePaths={{ restic_cache_dir }} {{ restic_prometehus_exporter_metrics_basedir }}

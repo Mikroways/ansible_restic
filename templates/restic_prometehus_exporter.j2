@@ -4,7 +4,7 @@
 set -eEuo pipefail
 
 UNIT=$1
-METRICS_FILE='{{ restic_prometehus_exporter_metrics_file }}'
+METRICS_FILE="{{ restic_prometehus_exporter_metrics_basedir }}/${UNIT}.prom"
 TMP_FILE="$(mktemp ${METRICS_FILE}.XXXXXXX)"
 # list of labels attached to all series, comma separated, without trailing comma
 COMMON_LABELS="unit=\"${UNIT}\""
