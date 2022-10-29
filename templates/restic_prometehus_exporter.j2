@@ -8,10 +8,10 @@ METRICS_FILE="{{ restic_prometehus_exporter_metrics_basedir }}/${UNIT}.prom"
 TMP_FILE="$(mktemp ${METRICS_FILE}.XXXXXXX)"
 # list of labels attached to all series, comma separated, without trailing comma
 COMMON_LABELS="unit=\"${UNIT}\""
+SCRIPT_NAME=$(echo ${UNIT} | sed 's/^restic-\(.*\).service/\1.sh/')
 LOGS=
 
 function error_finalizer() {
-    echo pepe
     write_metrics "restic_backup_failure{${COMMON_LABELS},timestamp=\"$(date '+%s')\"} 1"
     rotate_metric_file
 }
@@ -36,6 +36,9 @@ function convert_to_bytes() {
     local factor
 
     case $unit in
+             'B')
+                 factor=1
+                 ;;
              'KiB')
                  factor=1024
                  ;;
@@ -168,19 +171,13 @@ function main() {
 
     # script durations:
     # backup
-    local backup_duration_seconds=$(get_script_seconds 'restic-backup.sh')
+    local backup_duration_seconds=$(get_script_seconds "backup-${SCRIPT_NAME}")
     if [ -n "$backup_duration_seconds" ]; then
         write_metrics "restic_backup_duration_seconds{${COMMON_LABELS},action=\"backup\"} $backup_duration_seconds"
     fi
 
-    # cleanup
-    local cleanup_duration_seconds=$(get_script_seconds 'cleanup-backups.sh')
-    if [ -n "$cleanup_duration_seconds" ]; then
-        write_metrics "restic_backup_duration_seconds{${COMMON_LABELS},action=\"cleanup\"} $cleanup_duration_seconds"
-    fi
-
     # prune
-    local prune_duration_seconds=$(get_script_seconds 'restic-prune.sh')
+    local prune_duration_seconds=$(get_script_seconds "prune-${SCRIPT_NAME}")
     if [ -n "$prune_duration_seconds" ]; then
         write_metrics "restic_backup_duration_seconds{${COMMON_LABELS},action=\"prune\"} $prune_duration_seconds"
     fi
