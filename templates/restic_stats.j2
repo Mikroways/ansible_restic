@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+set -ueo pipefail
+
+source {{ restic_script_dir }}/access-{{ item.name }}.sh
+
+restic check
+
+{{ restic_install_path }}/restic stats --mode raw-data
+
+if [ $(date +%A) == "Saturday" ]; then
+  {{ restic_install_path }}/restic stats
+fi

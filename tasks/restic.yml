@@ -48,6 +48,20 @@
     - item.src is defined or item.stdin and item.stdin_cmd is defined
     - item.repo in restic_repos
 
+- name: Create stats script
+  template:
+    src: '{{ restic_stats_template }}'
+    dest: '{{ restic_script_dir }}/stats-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{ restic_dir_owner }}'
+    group: '{{ restic_dir_group }}'
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+    - item.src is defined or item.stdin is defined
+    - item.src is defined or item.stdin and item.stdin_cmd is defined
+    - item.repo in restic_repos
+
 - name: Configure prometehus exporter
   when: restic_prometehus_exporter_enabled
   block:

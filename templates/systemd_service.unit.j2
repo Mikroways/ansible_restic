@@ -13,6 +13,7 @@ Type=oneshot
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 ExecStartPost={{ restic_script_dir }}/prune-{{ item.name }}.sh
 {% if restic_prometehus_exporter_enabled %}
+ExecStartPost={{ restic_script_dir }}/stats-{{ item.name }}.sh
 ExecStartPost={{ restic_prometehus_exporter_script }} %n
 {% endif %}
 

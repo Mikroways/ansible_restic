@@ -4,7 +4,7 @@
 # Source this file to work with restic on this host
 
 export PATH="{{ restic_install_path }}:$PATH"
-export RESTIC_CACHE_DIR={{ restic_cache_dir }}
+export RESTIC_CACHE_DIR="{{ restic_cache_dir }}/{{ item.name }}"
 export RESTIC_REPOSITORY={{ restic_repos[item.repo].location }}
 export RESTIC_PASSWORD='{{ restic_repos[item.repo].password | regex_replace('\'', '\'\\\'\'') }}'
 {% if restic_repos[item.repo].aws_access_key is defined %}
@@ -26,3 +26,4 @@ BACKUP_NAME='{{ item.name }}'
 {% if item.src is defined %}
 BACKUP_SOURCE='{{ item.src }}'
 {% endif %}
+mkdir -p $RESTIC_CACHE_DIR

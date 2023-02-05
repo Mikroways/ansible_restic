@@ -114,17 +114,49 @@ function analyze_added_line() {
     echo "restic_repo_size_bytes{${COMMON_LABELS},state=\"new\"} $added_bytes"
 }
 
-function analyze_repository_line() {
-    # repository contains 23329 packs (291507 blobs) with 109.102 GiB
-    # Note: the "|| true" parts prevent bash from exiting due to PIPEFAIL
-    repo_line=$(echo "$LOGS" | (grep 'repository contains' || true) | (cut -d':' -f4- || true) )
+function analyze_repository_stats() {
+    local script_name="$1"
+    local script_logs=$(echo "$LOGS" | (grep -s -F "$script_name" || true) | \
+      ( cut -d: -f4- || true ))
+    if [ -z "$script_logs" ]; then
+        return
+    fi
+    repo_line=$(echo "$script_logs" | (grep 'Stats in raw-data mode' -A3 || true) \
+      | tail -3 | ( cut -d: -f 2- || true ) || tr '\n' ' ')
     # this line only exists when also a prune was run
     if [ -n "$repo_line" ]; then
-        repo_value=$(echo $repo_line | awk '{print $8 }')
-        repo_unit=$(echo $repo_line | awk '{print $9 }')
+        snapshots_processed=$(echo $repo_line | awk '{ print $1 }' )
+        blob_count=$(echo $repo_line | awk '{ print $2 }' )
+        repo_value=$(echo $repo_line | awk '{ print $3 }' )
+        repo_unit=$(echo $repo_line | awk '{ print $4 }' )
         repo_bytes=$(convert_to_bytes $repo_value $repo_unit)
+        if [ -n "$snapshots_processed" ]; then
+            echo "restic_repo_raw_stats{${COMMON_LABELS}, data=\"snapshots\"} $snapshots_processed"
+        fi
+        if [ -n "$blob_count" ]; then
+            echo "restic_repo_raw_stats{${COMMON_LABELS}, data=\"blobs\"} $blob_count"
+        fi
         if [ -n "$repo_bytes" ]; then
-            echo "restic_repo_size_bytes{${COMMON_LABELS},state=\"total\"} $repo_bytes"
+            echo "restic_repo_raw_stats{${COMMON_LABELS}, data=\"bytes\"} $repo_bytes"
+        fi
+    fi
+    repo_line=$(echo "$script_logs" | (grep 'Stats in restore-size mode' -A3 || true) \
+      | tail -3 | ( cut -d: -f 2- || true ) || tr '\n' ' ')
+    # this line only exists when also a prune was run
+    if [ -n "$repo_line" ]; then
+        snapshots_processed=$(echo $repo_line | awk '{ print $1 }' )
+        file_count=$(echo $repo_line | awk '{ print $2 }' )
+        repo_value=$(echo $repo_line | awk '{ print $3 }' )
+        repo_unit=$(echo $repo_line | awk '{ print $4 }' )
+        repo_bytes=$(convert_to_bytes $repo_value $repo_unit)
+        if [ -n "$snapshots_processed" ]; then
+            echo "restic_repo_restore_stats{${COMMON_LABELS}, data=\"snapshots\"} $snapshots_processed"
+        fi
+        if [ -n "$file_count" ]; then
+            echo "restic_repo_restore_stats{${COMMON_LABELS}, data=\"files\"} $file_count"
+        fi
+        if [ -n "$repo_bytes" ]; then
+            echo "restic_repo_restore_stats{${COMMON_LABELS}, data=\"bytes\"} $repo_bytes"
         fi
     fi
 }
@@ -166,7 +198,7 @@ function main() {
 
     write_metrics "$(analyze_files_line)"
     write_metrics "$(analyze_added_line)"
-    write_metrics "$(analyze_repository_line)"
+    write_metrics "$(analyze_repository_stats "stats-${SCRIPT_NAME}")"
     write_metrics "$(analyze_dirs_line)"
 
     # script durations:

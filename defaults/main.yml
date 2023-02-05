@@ -17,6 +17,7 @@ restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'
 restic_access_template: restic_access.j2
 restic_backup_template: restic_backup.j2
 restic_prune_template: restic_prune.j2
+restic_stats_template: restic_stats.j2
 restic_systemd_timer_template: systemd_timer.unit.j2
 restic_systemd_service_template: systemd_service.unit.j2
 restic_systemd_failure_service_template: systemd_failure.unit.j2
