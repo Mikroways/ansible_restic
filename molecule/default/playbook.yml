@@ -63,3 +63,50 @@
         repo: local
         keep_last: 4
         keep_tag: deployment
+
+- name: Converge with non-root user
+  hosts: all
+  roles:
+    - role: mikroways.restic
+      become: true
+  pre_tasks:
+    - name: Pre-run | update package cache (debian, etc)
+      ansible.builtin.apt:
+        update_cache: true
+      changed_when: false
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+    - name: Install dependencies 
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - bzip2
+        - sudo
+        - libcap2-bin  # required for setcap cap_dac_read_search=+ep
+        - acl  # needed to run 1 task with become_user: "{{ restic_non_root_setup_user }}"
+  vars:
+    restic_skip_handlers: true
+    restic_prometehus_exporter_enabled: false
+    restic_create_systemd_timer: false
+    restic_download_path: /home/restic/workDir
+    restic_install_path: /home/restic/workDir
+    restic_cache_dir: /home/restic/restic_cache
+    restic_repos:
+      local:
+        # This location should have write permissions!
+        location: /home/restic/backup-local
+        password: securepassword1
+        init: true
+    restic_backups:
+      - name: opt_stuff
+        src: /opt
+        repo: local
+        keep_last: 4
+        keep_tag: deployment
+        schedules:
+          - "*-*-* 00:00:00"
+    restic_non_root_setup: true
+    restic_non_root_setup_user: restic
+    restic_dir_owner: restic
+    restic_dir_group: restic
+    restic_version: "0.15.1"
