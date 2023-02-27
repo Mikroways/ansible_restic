@@ -73,6 +73,8 @@ This scripts will be stored in a configurable scripts directory:
 | `restic_failure_template` | `restic_failure_unit.j2` ||
 | `restic_failure_script` | `{{restic_script_dir }}/unit-failure` ||
 | `restic_failure_mail_to` | `root` ||
+| `restic_non_root_setup` | `false` | Installs Restic as a specific user with read-only rights. (See [restic docs](https://restic.readthedocs.io/en/stable/080_examples.html#backing-up-your-system-without-running-restic-as-root))|
+| `restic_non_root_setup_user` | `restic` ||
 
 ### Repos
 
@@ -172,6 +174,18 @@ exclude:
 Please refer to the use of the specific keys to the
 [documentation](https://restic.readthedocs.io/en/latest/040_backup.html#excluding-files).
 
+## Full backup without root
+
+As explained in the Restic official docs, the tool can be [used without root](https://restic.readthedocs.io/en/stable/080_examples.html#backing-up-your-system-without-running-restic-as-root).
+To have it installed as the docs are describing, set the desired user for Restic, e.g. `restic`:
+
+```yml
+restic_non_root_setup: true
+restic_non_root_setup_user: restic
+restic_dir_owner: restic
+restic_dir_group: restic
+```
+
 ## Dependencies
 
 none
@@ -181,7 +195,8 @@ none
 ```yml
 - hosts: all
   roles:
-    - mikroways.restic
+    - role: mikroways.restic
+      become: true
 ```
 
 ## Author

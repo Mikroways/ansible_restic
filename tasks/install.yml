@@ -19,6 +19,15 @@
     mode: '0755'
     owner: '{{ restic_dir_owner }}'
     group: '{{ restic_dir_group }}'
+  when: not restic_non_root_setup | bool
+
+- name: Ensure permissions are correct (non-root setup)
+  file:
+    path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+    mode: '0750'
+    owner: "{{ restic_non_root_setup_user }}"
+    group: "{{ restic_non_root_setup_user }}"
+  when: restic_non_root_setup | bool
 
 - name: Test the binary
   shell: "{{ restic_bin_bath }} version | grep restic"
@@ -45,3 +54,21 @@
     path: '{{ restic_install_path }}/restic'
     state: link
     force: true
+  when: not restic_non_root_setup | bool
+
+- name: Create symbolic link to the correct version (non-root setup)
+  file:
+    src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+    path: '{{ restic_install_path }}/restic'
+    state: link
+    mode: '0750'
+  become_user: "{{ restic_non_root_setup_user }}"  # THIS NEEDS apt install acl
+  when: restic_non_root_setup | bool
+
+# If this module fails, replace it with command: setcap cap_dac_read_search=+ep
+- name: Set capability on the restic app to read-only on the whole system
+  community.general.capabilities:
+    path: "{{ restic_download_path }}/bin/restic-{{ restic_version }}"
+    capability: cap_dac_read_search=+ep
+    state: present
+  when: restic_non_root_setup | bool
