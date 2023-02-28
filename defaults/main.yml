@@ -29,7 +29,7 @@ restic_prometehus_exporter_script: '{{ restic_script_dir }}/restic_prometehus_ex
 restic_prometehus_exporter_metrics_basedir: /var/lib/node-exporter
 
 restic_failure_template: restic_failure_unit.j2
-restic_failure_script: '{{restic_script_dir }}/unit-failure'
+restic_failure_script: '{{ restic_script_dir }}/unit-failure'
 restic_failure_mail_to: "root"
 
 restic_non_root_setup: false
