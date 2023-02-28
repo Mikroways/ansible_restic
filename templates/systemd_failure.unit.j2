@@ -20,4 +20,6 @@ ProtectControlGroups=true
 ProtectControlGroups=true
 PrivateDevices=true
 MemoryDenyWriteExecute=true
+{% if restic_prometehus_exporter_enabled %}
 ReadWritePaths={{ restic_prometehus_exporter_script | dirname }}
+{% endif %}

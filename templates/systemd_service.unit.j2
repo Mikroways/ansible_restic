@@ -10,6 +10,11 @@ RequiresMountsFor= {{ m }}
 
 [Service]
 Type=oneshot
+{% if restic_non_root_setup %}
+User={{ restic_non_root_setup_user }}
+Group={{ restic_non_root_setup_user }}
+AmbientCapabilities=cap_dac_read_search
+{% endif %}
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 ExecStartPost={{ restic_script_dir }}/prune-{{ item.name }}.sh
 {% if restic_prometehus_exporter_enabled %}

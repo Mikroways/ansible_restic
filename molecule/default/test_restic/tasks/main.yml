@@ -2,13 +2,23 @@
 - name: "include tasks for testing backup files"
   include_tasks: "test_backup_files.yml"
   with_items:
-    - backup-dicttest.sh
-    - backup-test.sh
-    - backup-test_stdin.sh
+    - file: backup-dicttest.sh
+      location: ~/restic/scripts
+    - file: backup-test.sh
+      location: ~/restic/scripts
+    - file: backup-test_stdin.sh
+      location: ~/restic/scripts
+    - file: backup-opt_stuff.sh
+      location: /home/restic/workDir/scripts
 
 - name: "include tasks for testing access files"
   include_tasks: "test_access_files.yml"
   with_items:
-    - access-dicttest.sh
-    - access-test.sh
-    - access-test_stdin.sh
+    - file: access-dicttest.sh
+      location: ~/restic/scripts
+    - file: access-test.sh
+      location: ~/restic/scripts
+    - file: access-test_stdin.sh
+      location: ~/restic/scripts
+    - file: access-opt_stuff.sh
+      location: /home/restic/workDir/scripts
