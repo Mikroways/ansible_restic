@@ -1,15 +1,15 @@
 ---
-- name: "Stat test backup file {{ item }}"
+- name: "Stat test backup file {{ item.file }}"
   stat:
-    path: ~/restic/scripts/{{ item }}
+    path: "{{ item.location }}/{{ item.file }}"
   register: test_file
 
-- name: "Check that the test backup {{ item }}  file exists"
+- name: "Check that the test backup {{ item.file }}  file exists"
   assert:
     that:
       - test_file.stat.exists
 
-- name: "Run the backup scripts {{ item }}"
-  shell: "./{{ item }}"
+- name: "Run the backup scripts {{ item.file }}"
+  shell: "./{{ item.file }}"
   args:
-    chdir: ~/restic/scripts
+    chdir: "{{ item.location }}"
