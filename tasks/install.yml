@@ -3,7 +3,7 @@
   get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
-    force: true
+    checksum: "sha256:{{ restic_url_checksums }}"
   register: get_url_restic
 
 - name: Install restic
