@@ -37,32 +37,7 @@
         keep_daily: 7
         keep_monthly: 12
         keep_yearly: 5
-
-- name: Converge with dict
-  hosts: all
-  roles:
-    - role: mikroways.restic
-  pre_tasks:
-    - name: install bzip2
-      package:
-        name: bzip2
-        state: present
-  vars:
-    restic_skip_handlers: true
-    restic_download_path: ~/restic
-    restic_install_path: ~/restic
-    restic_repos:
-      local:
-        location: /backup
-        password: securepassword1
-        init: true
-    restic_backups:
-      dicttest:
-        name: dicttest
-        src: /home
-        repo: local
-        keep_last: 4
-        keep_tag: deployment
+    restic_non_root_setup: false
 
 - name: Converge with non-root user
   hosts: all
@@ -109,4 +84,30 @@
     restic_non_root_setup_user: restic
     restic_dir_owner: restic
     restic_dir_group: restic
-    restic_version: "0.15.1"
+
+- name: Converge with dict
+  hosts: all
+  roles:
+    - role: mikroways.restic
+  pre_tasks:
+    - name: install bzip2
+      package:
+        name: bzip2
+        state: present
+  vars:
+    restic_skip_handlers: true
+    restic_download_path: ~/restic
+    restic_install_path: ~/restic
+    restic_repos:
+      local:
+        location: /backup
+        password: securepassword1
+        init: true
+    restic_backups:
+      dicttest:
+        name: dicttest
+        src: /home
+        repo: local
+        keep_last: 4
+        keep_tag: deployment
+    restic_non_root_setup: false
