@@ -7,3 +7,7 @@ exclude_paths:
   - .pre-commit-config.yaml
   - .github/
 offline: true
+
+warn_list:  # TODO: fix warnings from ansible-lint 6.13.1 using ansible 2.13.7 & incl. to tox.ini
+  - fqcn[action-core]
+  - name[template]

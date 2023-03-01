@@ -4,6 +4,7 @@
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
     checksum: "sha256:{{ restic_url_checksums }}"
+    mode: "0644"
   register: get_url_restic
 
 - name: Install restic

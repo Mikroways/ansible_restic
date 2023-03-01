@@ -50,7 +50,7 @@
         update_cache: true
       changed_when: false
       when: ansible_distribution in ["Debian", "Ubuntu"]
-    - name: Install dependencies 
+    - name: Install dependencies
       package:
         name: "{{ item }}"
         state: present
