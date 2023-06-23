@@ -6,7 +6,7 @@
     checksum: "sha256:{{ restic_url_checksums }}"
     mode: "0644"
   register: get_url_restic
-  when: not restic_skip_checksum_verify
+  when: restic_skip_checksum_verify
 
 - name: Download restic
   get_url:
@@ -15,7 +15,7 @@
     checksum: "sha256:{{ restic_checksums }}"
     mode: "0644"
   register: get_url_restic
-  when: restic_skip_checksum_verify
+  when: not restic_skip_checksum_verify
 
 - name: Install restic
   shell: |
