@@ -48,4 +48,4 @@
   ansible.builtin.set_fact:
     restic_checksums: >
       {{ checksums['content'] | b64decode | regex_findall('[0-9a-f]{64}  restic_[0-9]+\.[0-9]+\.[0-9]+_linux_amd64.bz2') | regex_findall('[0-9a-f]{64}') }}
-  when: restic_system == 'linux' and restic_platform == amd64
+  when: restic_system == 'linux' and restic_platform == 'amd64'
