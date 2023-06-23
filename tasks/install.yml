@@ -1,5 +1,5 @@
 ---
-- name: Download restic
+- name: Download restic withouth verified checksum file
   get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
@@ -8,7 +8,7 @@
   register: get_url_restic
   when: restic_skip_checksum_verify
 
-- name: Download restic
+- name: Download restic with verified checksum file
   get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
