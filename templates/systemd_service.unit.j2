@@ -18,8 +18,7 @@ AmbientCapabilities=cap_dac_read_search
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 ExecStartPost={{ restic_script_dir }}/prune-{{ item.name }}.sh
 {% if restic_prometehus_exporter_enabled %}
-ExecStartPost={{ restic_script_dir }}/stats-{{ item.name }}.sh
-ExecStartPost={{ restic_prometehus_exporter_script }} %n
+ExecStartPost={{ restic_prometehus_exporter_script }} {{ restic_script_dir }}/access-{{ item.name }}.sh
 {% endif %}
 
 # Security hardening (see man 7 systemd.exec)

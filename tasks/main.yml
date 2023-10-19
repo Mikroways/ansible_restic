@@ -46,7 +46,7 @@
     path: '{{ restic_install_path }}/restic'
   register: restic_installed
 
-- name: Install restic
+- name: Install restic and dependencies
   import_tasks: 'install.yml'
   when: not restic_executable.stat.exists or not restic_installed.stat.exists
     or restic_executable.stat.size == 0

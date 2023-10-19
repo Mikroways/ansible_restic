@@ -26,7 +26,7 @@ restic_systemd_failure_service_name: 'restic-backup-failure@.service'
 restic_prometehus_exporter_enabled: false
 restic_prometehus_exporter_template: restic_prometehus_exporter.j2
 restic_prometehus_exporter_script: '{{ restic_script_dir }}/restic_prometehus_exporter.sh'
-restic_prometehus_exporter_metrics_basedir: /var/lib/node-exporter
+restic_prometehus_exporter_metrics_basedir: /var/lib/node_exporter
 
 restic_failure_template: restic_failure_unit.j2
 restic_failure_script: '{{ restic_script_dir }}/unit-failure'
