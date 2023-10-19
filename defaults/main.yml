@@ -5,6 +5,8 @@ restic_version: '0.16.0'
 restic_download_path: '/opt/restic'
 restic_install_path: '/usr/bin'
 restic_cache_dir: /var/cache/restic
+restic_verify_pgp_url: https://restic.net/gpg-key-alex.asc
+restic_verify_dir: '{{ restic_cache_dir }}/.verify'
 restic_script_dir: '{{ restic_download_path }}/scripts'
 restic_repos: {}
 restic_backups: []

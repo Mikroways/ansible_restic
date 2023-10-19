@@ -8,6 +8,9 @@ platforms:
     image: 'geerlingguy/docker-ubuntu2004-ansible:latest'
     privileged: true
     pre_build_image: true
+  - name: ubuntu-2204
+    image: 'geerlingguy/docker-ubuntu2204-ansible:latest'
+    privileged: true
   - name: debian-11
     image: 'geerlingguy/docker-debian11-ansible:latest'
     privileged: true
@@ -18,6 +21,10 @@ lint: |
   ansible-lint .
 provisioner:
   name: ansible
+  inventory:
+    host_vars:
+      ubuntu-2004:
+        restic_skip_checksum_verify: false
   playbooks:
     converge: playbook.yml
 scenario:
