@@ -1,0 +1,51 @@
+---
+- name: Install dependencies
+  ansible.builtin.package:
+    name:
+      - gpg
+      - bzip2
+    state: present
+    update_cache: true
+  become: true
+
+- name: Download checksum file and signature
+  ansible.builtin.get_url:
+    url: "{{ restic_url_checksums }}/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/restic/restic_{{ item }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  loop:
+    - SHA256SUMS
+    - SHA256SUMS.asc
+
+- name: Copy public key to host
+  ansible.builtin.copy:
+    src: public.asc
+    dest: "{{ ansible_env.HOME }}/restic/public.asc"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0640
+
+- name: Import public key
+  ansible.builtin.command: gpg --import {{ ansible_env.HOME }}/restic/public.asc
+  changed_when: false
+
+- name: Verify checksum file
+  ansible.builtin.command: >
+    gpg --verify {{ ansible_env.HOME }}/restic/restic_SHA256SUMS.asc
+    {{ ansible_env.HOME }}/restic/restic_SHA256SUMS
+  register: verify
+  changed_when: false
+  failed_when: verify.rc != 0
+
+- name: Read checksum file
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/restic/restic_SHA256SUMS"
+  register: checksums
+
+- name: Extract hashes
+  ansible.builtin.set_fact:
+    restic_checksums: >
+      {{ checksums['content'] | b64decode | regex_findall('[0-9a-f]{64}  restic_[0-9]+\.[0-9]+\.[0-9]+_linux_amd64.bz2') | regex_findall('[0-9a-f]{64}') }}
+  when: restic_system == 'linux' and restic_platform == 'amd64'
