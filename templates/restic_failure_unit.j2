@@ -10,10 +10,8 @@ LOGS="$(journalctl --no-hostname -o short-iso INVOCATION_ID=${ID} + _SYSTEMD_INV
 
 # send email notification:
 # Note: requires a working mailer on the system!
-{{ if ansible_distribution == 'Debian' }}
-echo "$LOGS" | mail -s "Service $UNIT on $(hostname -f) failed!" "$EMAIL"
-{{%- else -%}}
 echo "$LOGS" | mailx -s "Service $UNIT on $(hostname -f) failed!" "$EMAIL"
-{{%- endif }}
+echo "$LOGS" | mailx -s "Service $UNIT on $(hostname -f) failed!" "$EMAIL"
+
 
 exit 0
