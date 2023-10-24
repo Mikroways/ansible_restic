@@ -26,7 +26,6 @@ restic_stats_template: restic_stats.j2
 restic_systemd_timer_template: systemd_timer.unit.j2
 restic_systemd_forget_service_template: systemd_forget.unit.j2
 restic_systemd_forget_timer_template: systemd_forget.timer.j2
-restic_systemd_prune_service_template: systemd_forget.unit.j2
 restic_systemd_prune_timer_template: systemd_forget.timer.j2
 restic_systemd_service_template: systemd_service.unit.j2
 restic_systemd_failure_service_template: systemd_failure.unit.j2
