@@ -7,8 +7,8 @@ OnFailure={{ restic_systemd_failure_service_name | splitext | first }}%n
 {% for m in item.requiredMounts | default([])%}
 RequiresMountsFor= {{ m }}
 {% endfor %}
-StartLimitInterval=1800
-StartLimitBurst=5
+StartLimitInterval=43200
+StartLimitBurst=10
 
 [Service]
 Type=oneshot
@@ -17,9 +17,9 @@ User={{ restic_non_root_setup_user }}
 Group={{ restic_non_root_setup_user }}
 AmbientCapabilities=cap_dac_read_search
 {% endif %}
-ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh {{ item.restic_extra_args | default('') }}
+ExecStart={{ restic_script_dir }}/forget-{{ item.name }}.sh {{ item.restic_extra_args | default('') }}
 Restart=on-failure
-RestartSec=30
+RestartSec=90
 
 # Security hardening (see man 7 systemd.exec)
 PrivateTmp=true

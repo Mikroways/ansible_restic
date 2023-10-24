@@ -58,3 +58,17 @@
 
 - name: Configure restic scripts and scheduler
   import_tasks: 'restic.yml'
+
+- name: Configure restic exporter
+  import_tasks: 'prune.yml'
+  when:
+    - restic_prune_enabled
+    - restic_prune_repositories is defined
+    - restic_prune_repositories | length > 0
+
+- name: Configure restic exporter
+  import_tasks: 'prometheus.yml'
+  when:
+    - restic_prometheus_exporter_enabled
+    - restic_prometheus_exporter_repositories is defined
+    - restic_prometheus_exporter_repositories | length > 0

@@ -1,14 +1,8 @@
 [Unit]
-Description=Run backup job for {{ item.name }}
-Documentation=https://restic.readthedocs.io/en/stable/
+Description=Restic exporter for backup job named %i
 Requires=local-fs.target
 Requires=network.target
 OnFailure={{ restic_systemd_failure_service_name | splitext | first }}%n
-{% for m in item.requiredMounts | default([])%}
-RequiresMountsFor= {{ m }}
-{% endfor %}
-StartLimitInterval=1800
-StartLimitBurst=5
 
 [Service]
 Type=oneshot
@@ -17,9 +11,7 @@ User={{ restic_non_root_setup_user }}
 Group={{ restic_non_root_setup_user }}
 AmbientCapabilities=cap_dac_read_search
 {% endif %}
-ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh {{ item.restic_extra_args | default('') }}
-Restart=on-failure
-RestartSec=30
+ExecStart={{ restic_prometheus_exporter_script }} {{ restic_script_dir }}/access-prometheus-%i.sh
 
 # Security hardening (see man 7 systemd.exec)
 PrivateTmp=true
@@ -31,3 +23,4 @@ ProtectControlGroups=true
 ProtectControlGroups=true
 PrivateDevices=true
 MemoryDenyWriteExecute=true
+ReadWritePaths={{ restic_prometheus_exporter_metrics_basedir }}

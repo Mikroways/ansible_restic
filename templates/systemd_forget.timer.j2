@@ -1,0 +1,11 @@
+[Unit]
+Description=Activates Forget Job for {{ item.name }}
+
+[Timer]
+{% for s in item.forgetSchedules %}
+OnCalendar={{ s }}
+{% endfor %}
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

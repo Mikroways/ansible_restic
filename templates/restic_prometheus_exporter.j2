@@ -1,0 +1,89 @@
+#!/bin/bash
+
+set -eEuo pipefail
+
+if [ -z "$1" ]; then
+  echo "No source file to be loaded"
+  exit 1
+fi
+
+if [ ! -e "$1" ]; then
+  echo "File $1 does not exist"
+  exit 1
+fi
+
+
+which jq &> /dev/null
+if [ $? -ne 0 ]; then
+      echo "jq is a requirement" && exit 1
+fi
+
+TEXTFILE_COLLECTOR_DIR="{{ restic_prometheus_exporter_metrics_basedir }}"
+
+if [ ! -d "${TEXTFILE_COLLECTOR_DIR}" ]; then
+  echo "Directory $TEXTFILE_COLLECTOR_DIR dont exists"
+  exit 1
+fi
+
+source $1
+
+HOST=$(hostname)
+REPO_NAME=${BACKUP_NAME}
+RESTIC_CMD="{{ restic_install_path }}/restic"
+
+# now make a temp file 
+SNAP_JSON_TMP=$(mktemp -q /tmp/restic-$REPO_NAME.XXXXXX || exit 1)
+ 
+# Set trap to clean up file
+trap 'rm -f -- "$SNAP_JSON_TMP"' EXIT
+
+
+# Create a temp unique file, that will not be parsed by node exporter.
+TEMP_FILE="${TEXTFILE_COLLECTOR_DIR}/restic-$REPO_NAME.prom.$$"
+PERM_FILE="${TEXTFILE_COLLECTOR_DIR}/restic-$REPO_NAME.prom"
+touch ${TEMP_FILE}
+
+$RESTIC_CMD snapshots --json --latest 1 --json > $SNAP_JSON_TMP
+
+for host in $(jq -r '.[].hostname' $SNAP_JSON_TMP); do
+  # Get tags from latest backup
+  for snap_id in $(jq -r '.[] | select(.hostname=="'$host'") | .id ' $SNAP_JSON_TMP); do
+
+    if [ "$(jq -r '.[] | select(.id=="'${snap_id}'") | .tags | length' $SNAP_JSON_TMP)" -gt 0 ]; then
+        tag=$(jq -r '.[] | select(.id=="'${snap_id}'") | .tags | join(",")' $SNAP_JSON_TMP)
+    else
+        tag=none
+    fi
+    # Note the start time of the script.
+    START="$(date +%s)"
+
+    # Initialize metric labels
+    LABELS="{repository=\\\"$REPO_NAME\\\",host=\\\"$HOST\\\",tags=\\\"$tag\\\"}"
+
+    # Get last backup timestamp
+    jq -r '.[] | select(.id=="'${snap_id}'") | .time |
+      sub("[.][0-9]+"; "") | sub("Z"; "+00:00") |
+      def parseDate(date): date |
+      capture("(?<no_tz>.*)(?<tz_sgn>[-+])(?<tz_hr>\\d{2}):(?<tz_min>\\d{2})$") |
+      (.no_tz + "Z" | fromdateiso8601) - (.tz_sgn + "60" | tonumber) * ((.tz_hr |
+      tonumber) * 60 + (.tz_min | tonumber)); parseDate(.) |
+      "restic_last_snapshot_ts'$LABELS' \(.)"' $SNAP_JSON_TMP >> ${TEMP_FILE}
+    # Get last backup size in bytes and files count
+    $RESTIC_CMD stats --json ${snap_id} \
+      | jq -r '"restic_stats_total_size_bytes'$LABELS' \(.total_size)\nrestic_stats_total_file_count'$LABELS' \(.total_file_count)"' >> ${TEMP_FILE}
+    # Get repository stats
+    $RESTIC_CMD stats --mode raw-data --json ${snap_id} \
+      | jq -r '"restic_stats_raw_total_size_bytes'$LABELS' \(.total_size)\nrestic_stats_snapshots_count'$LABELS' \(.snapshots_count)"' >> ${TEMP_FILE}
+    # Write out metrics to a temporary file.
+    END="$(date +%s)"
+    echo "restic_collector_duration_seconds$(echo $LABELS | sed 's/\\//g') $(($END - $START))" >> ${TEMP_FILE}
+    echo "restic_collector_last_run_ts$(echo $LABELS | sed 's/\\//g') ${END}" >> ${TEMP_FILE}
+  done
+done
+
+
+# Rename the temporary file atomically.
+# This avoids the node exporter seeing half a file.
+# In case a temp file was not created, delete the permanent file,
+# to avoid outdated metrics.
+mv "${TEMP_FILE}" "${PERM_FILE}" || rm "${PERM_FILE}"

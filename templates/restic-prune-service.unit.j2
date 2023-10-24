@@ -1,11 +1,12 @@
 [Unit]
-Description=Report backup failures
+Description=Restic prune for backup job named %i
+Requires=local-fs.target
 Requires=network.target
+OnFailure={{ restic_systemd_failure_service_name | splitext | first }}%n
 
 [Service]
 Type=oneshot
-# Notify problem logs (%i is systemd unit name)
-ExecStart=-{{ restic_failure_script }} %i.service {{ restic_failure_mail_to }}
+ExecStart={{ restic_prometheus_exporter_script }} {{ restic_script_dir }}/backup-prune-%i.sh
 
 # Security hardening (see man 7 systemd.exec)
 PrivateTmp=true
@@ -17,3 +18,4 @@ ProtectControlGroups=true
 ProtectControlGroups=true
 PrivateDevices=true
 MemoryDenyWriteExecute=true
+ReadWritePaths={{ restic_prometheus_exporter_metrics_basedir }}

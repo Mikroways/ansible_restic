@@ -5,14 +5,26 @@
   when:
     - restic_backups | type_debug == "dict"
 
+- name: "Set user and group to be used (non-root setup)"
+  set_fact:
+    _restic_user: '{{ restic_non_root_setup_user }}'
+    _restic_group: '{{ restic_dir_group }}'
+  when: restic_non_root_setup | bool
+
+- name: "Set user and group to be used"
+  set_fact:
+    _restic_user: '{{ restic_dir_owner }}'
+    _restic_group: '{{ restic_dir_group }}'
+  when: not restic_non_root_setup | bool
+
 - name: Create backup credentials
   template:
     src: '{{ restic_access_template }}'
     dest: '{{ restic_script_dir }}/access-{{ item.name }}.sh'
-    mode: '0700'
-    owner: '{{ restic_dir_owner }}'
-    group: '{{ restic_dir_group }}'
-  no_log: true
+    mode: '0400'
+    owner: '{{ _restic_user }}'
+    group: '{{ _restic_group }}'
+      #  no_log: true
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined
@@ -24,9 +36,9 @@
   template:
     src: '{{ restic_backup_template }}'
     dest: '{{ restic_script_dir }}/backup-{{ item.name }}.sh'
-    mode: '0700'
-    owner: '{{ restic_dir_owner }}'
-    group: '{{ restic_dir_group }}'
+    mode: '0500'
+    owner: '{{ _restic_user }}'
+    group: '{{ _restic_group }}'
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined
@@ -34,37 +46,19 @@
     - item.src is defined or item.stdin and item.stdin_cmd is defined
     - item.repo in restic_repos
 
-- name: Create prune script
+- name: Create forget script
   template:
-    src: '{{ restic_prune_template }}'
-    dest: '{{ restic_script_dir }}/prune-{{ item.name }}.sh'
+    src: '{{ restic_forget_template }}'
+    dest: '{{ restic_script_dir }}/forget-{{ item.name }}.sh'
     mode: '0700'
-    owner: '{{ restic_dir_owner }}'
-    group: '{{ restic_dir_group }}'
+    owner: '{{ _restic_user }}'
+    group: '{{ _restic_group }}'
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined
     - item.src is defined or item.stdin is defined
     - item.src is defined or item.stdin and item.stdin_cmd is defined
     - item.repo in restic_repos
-
-- name: Configure prometehus exporter
-  when: restic_prometehus_exporter_enabled
-  block:
-    - name: Configure prometehus exporter script
-      template:
-        src: '{{ restic_prometehus_exporter_template }}'
-        dest: '{{ restic_prometehus_exporter_script }}'
-        mode: '0700'
-        owner: '{{ restic_dir_owner }}'
-        group: '{{ restic_dir_group }}'
-    - name: Ensure prometehus metrics file can be created
-      file:
-        state: 'directory'
-        path: '{{ restic_prometehus_exporter_metrics_basedir }}'
-        mode: '0755'
-        owner: 'root'
-        group: 'root'
 
 - name: Setup systemd
   block:

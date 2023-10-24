@@ -89,21 +89,3 @@
     capability: cap_dac_read_search=+ep
     state: present
   when: restic_non_root_setup | bool
-
-- name: Install dependencies
-  block:
-      - name: update apt cache
-        ansible.builtin.apt:
-          update_cache: yes
-        when: ansible_pkg_mgr == "apt"
-      - name: update yum cache
-        ansible.builtin.yum:
-          update_cache: yes
-        when: ansible_pkg_mgr == "yum"
-      - name: update dnf cache
-        ansible.builtin.dnf:
-          update_cache: yes
-        when: ansible_pkg_mgr == "dnf"
-      - name: install jq
-        ansible.builtin.package:
-          name: jq

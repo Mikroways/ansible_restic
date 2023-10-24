@@ -23,12 +23,6 @@ source {{ restic_script_dir }}/access-{{ item.name }}.sh
 {% macro stdin_filename(n) -%}
   {% if n is defined %} --stdin-filename {{ n }}{% endif %}
 {%- endmacro %}
-{#
-  Define path
-#}
-{% macro path(repo) -%}
-  {% if repo.src is defined and repo.src != None and (repo.src|length>0)  %}{{ repo.src }}{% else %}{{ repo.stdin_filename }}{% endif %}
-{%- endmacro %}
 
 {% macro exclude(exclude) %}
     {% if exclude.exclude_cache is defined and exclude.exclude_cache == true %}
@@ -55,15 +49,20 @@ source {{ restic_script_dir }}/access-{{ item.name }}.sh
         {% endfor %}
     {% endif %}
 {% endmacro %}
+
 {#
   Define backup commands
 #}
 # check if repository needs to be initialized first
+{% if item.init is defined and item.init == true %}
 if ! {{ restic_install_path }}/restic snapshots 2>&1 >/dev/null; then
   {{ restic_install_path }}/restic init
 fi
+{% endif %}
 
+{% if item.check is defined and item.check == true %}
 {{ restic_install_path }}/restic check
+{% endif %}
 
 {% if item.stdin is defined and item.stdin == true %}
 {{ item.stdin_cmd }} | {{ restic_install_path }}/restic backup \
@@ -80,4 +79,5 @@ fi
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@
 {% endif %}
+
 echo "Backup OK at $(date -u '+%Y-%m-%d %H:%M:%S')"
