@@ -1,0 +1,85 @@
+---
+- name: Install dependencies
+  block:
+      - name: update apt cache
+        ansible.builtin.apt:
+          update_cache: yes
+        when: ansible_pkg_mgr == "apt"
+      - name: update yum cache
+        ansible.builtin.yum:
+          update_cache: yes
+        when: ansible_pkg_mgr == "yum"
+      - name: update dnf cache
+        ansible.builtin.dnf:
+          update_cache: yes
+        when: ansible_pkg_mgr == "dnf"
+      - name: install jq
+        ansible.builtin.package:
+          name: jq
+
+- name: Ensure prometehus metrics file can be created
+  file:
+    state: 'directory'
+    path: '{{ restic_prometheus_exporter_metrics_basedir }}'
+    mode: '0755'
+    owner: 'root'
+    group: 'root'
+
+- name: Configure prometehus exporter script
+  template:
+    src: '{{ restic_prometheus_exporter_template }}'
+    dest: '{{ restic_prometheus_exporter_script }}'
+    mode: '0700'
+    owner: '{{ _restic_user }}'
+    group: '{{ _restic_group }}'
+
+- name: Create dummy_list of restic_credentials
+  set_fact:
+    exporters_repos: >
+      {{ exporters_repos | default([]) +
+        [ item | combine({"repo": item.name, "src": '/'}) ] }}
+  with_items: '{{ restic_prometheus_exporter_repositories }}'
+
+- name: Create restic access credentials
+  template:
+    src: '{{ restic_access_template }}'
+    dest: '{{ restic_script_dir }}/access-prometheus-{{ item.name }}.sh'
+    mode: '0400'
+    owner: '{{ _restic_user }}'
+    group: '{{ _restic_group }}'
+      #  no_log: true
+  with_items: '{{ exporters_repos }}'
+
+- name: "Add systemd service restic-prometheus"
+  template:
+    src: "{{ restic_systemd_prometheus_service_template }}"
+    dest: "/etc/systemd/system/{{ restic_systemd_prometheus_service_name }}"
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+
+- name: "Add systemd timer restic-prometheus {{ item.name }}"
+  template:
+    src: "{{ restic_systemd_prometheus_timer_template }}"
+    dest: "/etc/systemd/system/{{ restic_systemd_prometheus_service_prefix_name }}{{ item.name}}.timer"
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+  when:
+    - item.schedules is defined
+    - item.schedules | length > 0
+  with_items: "{{ restic_prometheus_exporter_repositories }}"
+
+- name: "Enable systemd restic exporter for {{ item.name }} timer"
+  ansible.builtin.systemd:
+    name: "{{ restic_systemd_prometheus_service_prefix_name }}{{ item.name }}.timer"
+    enabled: true
+    state: "restarted"
+  when:
+    - item.schedules is defined
+    - item.schedules | length > 0
+  with_items: "{{ restic_prometheus_exporter_repositories }}"

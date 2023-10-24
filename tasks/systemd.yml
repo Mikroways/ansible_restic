@@ -27,6 +27,29 @@
     - restic_create_systemd_timer
     - item.schedules | default([]) | length > 0
 
+- name: "Add systemd forget service {{ item.name }}"
+  template:
+    src: "{{ restic_systemd_forget_service_template }}"
+    dest: "/etc/systemd/system/restic-forget-{{ item.name }}.service"
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+
+- name: "Add systemd forget {{ item.name }} timer"
+  template:
+    src: "{{ restic_systemd_forget_timer_template }}"
+    dest: "/etc/systemd/system/restic-forget-{{ item.name }}.timer"
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+  when:
+    - restic_create_systemd_timer
+    - item.forgetSchedules | default([]) | length > 0
+
 - name: "Enable systemd {{ item.name }} timer"
   ansible.builtin.systemd:
     name: "restic-{{ item.name }}.timer"
@@ -35,3 +58,12 @@
   when:
     - restic_create_systemd_timer
     - item.schedules | default([]) | length > 0
+
+- name: "Enable systemd forget {{ item.name }} timer"
+  ansible.builtin.systemd:
+    name: "restic-forget-{{ item.name }}.timer"
+    enabled: true
+    state: "restarted"
+  when:
+    - restic_create_systemd_timer
+    - item.forgetSchedules | default([]) | length > 0

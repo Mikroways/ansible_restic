@@ -12,7 +12,7 @@
     restic_skip_handlers: true
     restic_download_path: ~/restic
     restic_install_path: ~/restic
-    restic_prometehus_exporter_enabled: True
+    restic_prometheus_exporter_enabled: True
     restic_create_systemd_timer: false
     restic_repos:
       local:
@@ -61,7 +61,7 @@
         - acl  # needed to run 1 task with become_user: "{{ restic_non_root_setup_user }}"
   vars:
     restic_skip_handlers: true
-    restic_prometehus_exporter_enabled: false
+    restic_prometheus_exporter_enabled: false
     restic_create_systemd_timer: false
     restic_download_path: /home/restic/workDir
     restic_install_path: /home/restic/workDir

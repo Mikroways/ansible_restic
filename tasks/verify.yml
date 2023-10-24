@@ -1,47 +1,45 @@
 ---
-- name: Install dependencies
+- name: Install verify dependencies
   ansible.builtin.package:
     name:
       - gpg
+      - gpg-agent
       - bzip2
     state: present
     update_cache: true
   become: true
 
+
 - name: Download checksum file and signature
   ansible.builtin.get_url:
     url: "{{ restic_url_checksums }}/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/restic/restic_{{ item }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    dest: "{{ restic_verify_dir}}/restic_{{ item }}"
     mode: 0644
   loop:
     - SHA256SUMS
     - SHA256SUMS.asc
 
 - name: Copy public key to host
-  ansible.builtin.copy:
-    src: public.asc
-    dest: "{{ ansible_env.HOME }}/restic/public.asc"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+  ansible.builtin.get_url:
+    url: "{{ restic_verify_pgp_url }}"
+    dest: "{{ restic_verify_dir }}/public.asc"
     mode: 0640
 
 - name: Import public key
-  ansible.builtin.command: gpg --import {{ ansible_env.HOME }}/restic/public.asc
+  ansible.builtin.command: gpg --import {{ restic_verify_dir }}/public.asc
   changed_when: false
 
 - name: Verify checksum file
   ansible.builtin.command: >
-    gpg --verify {{ ansible_env.HOME }}/restic/restic_SHA256SUMS.asc
-    {{ ansible_env.HOME }}/restic/restic_SHA256SUMS
+    gpg --verify {{ restic_verify_dir }}/restic_SHA256SUMS.asc
+    {{ restic_verify_dir }}/restic_SHA256SUMS
   register: verify
   changed_when: false
   failed_when: verify.rc != 0
 
 - name: Read checksum file
   ansible.builtin.slurp:
-    src: "{{ ansible_env.HOME }}/restic/restic_SHA256SUMS"
+    src: "{{ restic_verify_dir }}/restic_SHA256SUMS"
   register: checksums
 
 - name: Extract hashes

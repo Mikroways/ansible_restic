@@ -14,6 +14,12 @@ restic check
   {% if tags is defined and (tags|length>0) %}{% for tag in tags %} --keep-tag {{ tag }}{% endfor %}{% endif %}
 {%- endmacro %}
 {#
+  Define Hostname
+#}
+{% macro hostname() -%}
+--host $(hostname)
+{%- endmacro %}
+{#
   Define path
 #}
 {% macro path(repo) -%}
@@ -30,11 +36,12 @@ restic check
   {% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }}{% endif %} \
   {% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }}{% endif %} \
   {% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }}{% endif %} \
-  {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %}
+  {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %} \
 {%- endmacro %}
-{#
-  Define stdin forget commands
-#}
-{{ restic_install_path }}/restic forget --path {{ path(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %}
 
-echo "Finished pruning at $(date -u '+%Y-%m-%d %H:%M:%S')"
+{{ restic_install_path }}/restic forget \
+  {{ hostname() }} \
+  --path {{ path(item) }} {{ retention_pattern(item) }}
+  {% if item.prune is defined and item.prune == true %}--prune{% endif %} $@
+
+echo "Finished Forget at $(date -u '+%Y-%m-%d %H:%M:%S')"

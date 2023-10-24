@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+set -ueo pipefail
+
+source {{ restic_script_dir }}/access-prune-{{ item.name }}.sh
+
+{{ restic_install_path }}/restic prune {{ item.restic_extra_args | default('') }}
+
+echo "Prune OK at $(date -u '+%Y-%m-%d %H:%M:%S')"

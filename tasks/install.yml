@@ -3,7 +3,7 @@
   get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
-    checksum: "sha256:{{ restic_url_checksums }}"
+    checksum: "sha256:{{ restic_url_checksums }}/SHA256SUMS"
     mode: "0644"
   register: get_url_restic
   when: restic_skip_checksum_verify
@@ -17,12 +17,18 @@
   register: get_url_restic
   when: not restic_skip_checksum_verify
 
+- name: Check download
+  stat:
+    path: '{{ restic_download_path }}/restic.bz2'
+  register: file_status
+
 - name: Install restic
   shell: |
-    bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }} &&
-    rm -f {{ get_url_restic.dest }}
+    bzip2 -dc {{ restic_download_path }}/restic.bz2 > {{ restic_bin_bath }} &&
+    rm -f {{ restic_download_path }}/restic.bz2
   register: restic_install_cmd
   changed_when: restic_install_cmd.rc == 0
+  when: file_status.stat.exists
 
 - name: Ensure permissions are correct
   file:

@@ -1,17 +1,6 @@
 ---
 name: Tests
 on:
-  push:
-    paths:
-      - defaults/**
-      - handlers/**
-      - meta/**
-      - molecule/**
-      - tasks/**
-      - templates/**
-      - vars/**
-      - .github/**
-      - tox.ini
   pull_request:
     branches:
       - main

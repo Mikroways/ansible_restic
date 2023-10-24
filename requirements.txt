@@ -1,7 +1,8 @@
 jmespath
+urllib3<2
 tox==4.0.0b2
 ansible==5.*
-molecule[docker]
+molecule-plugins[docker]
 docker == 5.*
 ansible-lint == 5.*
 yamllint == 1.26.*

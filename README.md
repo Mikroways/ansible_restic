@@ -6,6 +6,8 @@ I've also found an inspiration from other existing roles as: [arsillio.restic](h
 but evolving from cron to systemd was my objective, so I've decided to write
 this new role as a composition of ideas.
 
+> This documentation needs to be updated with changes introduced since 2.0.x
+
 ## Description
 
 This role installs [Restic](https://github.com/restic/restic) and configures as
