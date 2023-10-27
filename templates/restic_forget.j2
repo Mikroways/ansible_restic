@@ -6,7 +6,6 @@ set -ueo pipefail
 
 source {{ restic_script_dir }}/access-{{ item.name }}.sh
 
-restic check
 {#
   Define Keeped Tags
 #}
@@ -38,6 +37,8 @@ restic check
   {% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }}{% endif %} \
   {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %} \
 {%- endmacro %}
+
+{{ restic_install_path }}/restic unlock $@
 
 {{ restic_install_path }}/restic forget \
   {{ hostname() }} \
