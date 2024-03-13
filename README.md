@@ -77,6 +77,7 @@ This scripts will be stored in a configurable scripts directory:
 | `restic_failure_mail_to` | `root` ||
 | `restic_non_root_setup` | `false` | Installs Restic as a specific user with read-only rights. (See [restic docs](https://restic.readthedocs.io/en/stable/080_examples.html#backing-up-your-system-without-running-restic-as-root))|
 | `restic_non_root_setup_user` | `restic` ||
+| `restic_gomaxprocs` | not defined | By default, restic [uses all available CPU cores](https://restic.readthedocs.io/en/stable/047_tuning_backup_parameters.html#cpu-usage). Use this variable to limit the number of used CPU cores.   |
 
 ### Repos
 
