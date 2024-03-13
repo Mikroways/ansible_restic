@@ -10,8 +10,8 @@
         state: present
   vars:
     restic_skip_handlers: true
-    restic_download_path: ~/restic
-    restic_install_path: ~/restic
+    restic_download_path: /root/restic
+    restic_install_path: /root/restic
     restic_prometheus_exporter_enabled: True
     restic_create_systemd_timer: false
     restic_repos:
@@ -96,8 +96,8 @@
         state: present
   vars:
     restic_skip_handlers: true
-    restic_download_path: ~/restic
-    restic_install_path: ~/restic
+    restic_download_path: /root/restic
+    restic_install_path: /root/restic
     restic_repos:
       local:
         location: /backup
