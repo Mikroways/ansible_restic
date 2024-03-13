@@ -18,17 +18,18 @@
       local:
         location: /backup
         password: securepassword1
-        init: true
     restic_backups:
       - name: test
         src: /home
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
         schedules:
           - "*-*-* 00:00:00"
       - name: test_stdin
         repo: local
+        init: true
         stdin: true
         stdin_cmd: echo "this comes from stdin"
         stdin_filename: stdin.txt
@@ -71,11 +72,11 @@
         # This location should have write permissions!
         location: /home/restic/backup-local
         password: securepassword1
-        init: true
     restic_backups:
       - name: opt_stuff
         src: /opt
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
         schedules:
@@ -102,12 +103,12 @@
       local:
         location: /backup
         password: securepassword1
-        init: true
     restic_backups:
       dicttest:
         name: dicttest
         src: /home
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
     restic_non_root_setup: false
