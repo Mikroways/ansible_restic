@@ -13,8 +13,8 @@
 - name: Download checksum file and signature
   ansible.builtin.get_url:
     url: "{{ restic_url_checksums }}/{{ item }}"
-    dest: "{{ restic_verify_dir}}/restic_{{ item }}"
-    mode: 0644
+    dest: "{{ restic_verify_dir }}/restic_{{ item }}"
+    mode: "0644"
   loop:
     - SHA256SUMS
     - SHA256SUMS.asc
@@ -23,7 +23,7 @@
   ansible.builtin.get_url:
     url: "{{ restic_verify_pgp_url }}"
     dest: "{{ restic_verify_dir }}/public.asc"
-    mode: 0640
+    mode: "0640"
 
 - name: Import public key
   ansible.builtin.command: gpg --import {{ restic_verify_dir }}/public.asc

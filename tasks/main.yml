@@ -1,6 +1,6 @@
 ---
 - name: Add OS specific variables
-  include_vars: '{{ loop_vars }}'
+  ansible.builtin.include_vars: '{{ loop_vars }}'
   with_first_found:
     - files:
         - '{{ distribution }}-{{ distribution_version }}.yml'
@@ -28,7 +28,7 @@
   when: restic_non_root_setup | bool
 
 - name: Ensure restic directories exist
-  file:
+  ansible.builtin.file:
     state: 'directory'
     path: '{{ item }}'
     mode: '0755'
@@ -37,37 +37,37 @@
   with_items: '{{ restic_create_paths }}'
 
 - name: Check if downloaded binary is present
-  stat:
+  ansible.builtin.stat:
     path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
   register: restic_executable
 
 - name: Check if installed binary is present
-  stat:
+  ansible.builtin.stat:
     path: '{{ restic_install_path }}/restic'
   register: restic_installed
 
 - name: Verify SHA256SUMS
-  import_tasks: 'verify.yml'
+  ansible.builtin.import_tasks: 'verify.yml'
   when: ( not restic_executable.stat.exists or not restic_installed.stat.exists
     or restic_executable.stat.size == 0 ) and not restic_skip_checksum_verify
 
 - name: Install restic and dependencies
-  import_tasks: 'install.yml'
+  ansible.builtin.import_tasks: 'install.yml'
   when: not restic_executable.stat.exists or not restic_installed.stat.exists
     or restic_executable.stat.size == 0
 
 - name: Configure restic scripts and scheduler
-  import_tasks: 'restic.yml'
+  ansible.builtin.import_tasks: 'restic.yml'
 
 - name: Configure restic exporter
-  import_tasks: 'prune.yml'
+  ansible.builtin.import_tasks: 'prune.yml'
   when:
     - restic_prune_enabled
     - restic_prune_repositories is defined
     - restic_prune_repositories | length > 0
 
 - name: Configure restic exporter
-  import_tasks: 'prometheus.yml'
+  ansible.builtin.import_tasks: 'prometheus.yml'
   when:
     - restic_prometheus_exporter_enabled
     - restic_prometheus_exporter_repositories is defined

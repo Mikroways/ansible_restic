@@ -22,11 +22,9 @@ restic_dir_group: 'root'
 restic_access_template: restic_access.j2
 restic_backup_template: restic_backup.j2
 restic_forget_template: restic_forget.j2
-restic_stats_template: restic_stats.j2
 restic_systemd_timer_template: systemd_timer.unit.j2
 restic_systemd_forget_service_template: systemd_forget.unit.j2
 restic_systemd_forget_timer_template: systemd_forget.timer.j2
-restic_systemd_prune_timer_template: systemd_forget.timer.j2
 restic_systemd_service_template: systemd_service.unit.j2
 restic_systemd_failure_service_template: systemd_failure.unit.j2
 restic_systemd_failure_service_name: 'restic-backup-failure@.service'
@@ -38,12 +36,12 @@ restic_prometheus_exporter_metrics_basedir: /var/lib/node_exporter
 restic_prometheus_exporter_repositories: []
 restic_systemd_prometheus_service_template: restic-prometheus-service.unit.j2
 restic_systemd_prometheus_service_prefix_name: 'restic-prometheus_exporter@'
-restic_systemd_prometheus_service_name: '{{ restic_systemd_prometheus_service_prefix_name}}.service'
+restic_systemd_prometheus_service_name: '{{ restic_systemd_prometheus_service_prefix_name }}.service'
 restic_systemd_prometheus_timer_template: restic-prometheus-timer.unit.j2
 restic_prune_template: restic-prune.j2
 restic_systemd_prune_service_template: restic-prune-service.unit.j2
 restic_systemd_prune_service_prefix_name: 'restic-prune@'
-restic_systemd_prune_service_name: '{{ restic_systemd_prune_service_prefix_name}}.service'
+restic_systemd_prune_service_name: '{{ restic_systemd_prune_service_prefix_name }}.service'
 restic_systemd_prune_timer_template: restic-prune-timer.unit.j2
 restic_failure_template: restic_failure_unit.j2
 restic_failure_script: '{{ restic_script_dir }}/unit-failure'

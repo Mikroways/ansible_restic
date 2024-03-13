@@ -1,13 +1,13 @@
 ---
 - name: Create dummy_list of restic_credentials for restic_prune_repositories
-  set_fact:
+  ansible.builtin.set_fact:
     prune_repos: >
       {{ prune_repos | default([]) +
         [ item | combine({"repo": item.name, "src": '/'}) ] }}
   with_items: '{{ restic_prune_repositories }}'
 
 - name: Create restic access credentials
-  template:
+  ansible.builtin.template:
     src: '{{ restic_access_template }}'
     dest: '{{ restic_script_dir }}/access-prune-{{ item.name }}.sh'
     mode: '0400'
@@ -17,7 +17,7 @@
   with_items: '{{ prune_repos }}'
 
 - name: Configure restic prune script
-  template:
+  ansible.builtin.template:
     src: '{{ restic_prune_template }}'
     dest: '{{ restic_script_dir }}/backup-prune-{{ item.name }}.sh'
     mode: '0700'
@@ -29,7 +29,7 @@
     - item.repo in restic_repos
 
 - name: "Add systemd service restic-prune"
-  template:
+  ansible.builtin.template:
     src: "{{ restic_systemd_prune_service_template }}"
     dest: "/etc/systemd/system/{{ restic_systemd_prune_service_name }}"
     mode: "0644"
@@ -39,9 +39,9 @@
     - Reload systemd
 
 - name: "Add systemd timer restic-prune {{ item.name }}"
-  template:
+  ansible.builtin.template:
     src: "{{ restic_systemd_prune_timer_template }}"
-    dest: "/etc/systemd/system/{{ restic_systemd_prune_service_prefix_name }}{{ item.name}}.timer"
+    dest: "/etc/systemd/system/{{ restic_systemd_prune_service_prefix_name }}{{ item.name }}.timer"
     mode: "0644"
     owner: root
     group: root
@@ -52,7 +52,7 @@
     - item.schedules | length > 0
   with_items: "{{ restic_prune_repositories }}"
 
-- name: "Enable systemd restic-prune for {{ item.name }} timer"
+- name: "Enable systemd restic-prune for timer {{ item.name }}"
   ansible.builtin.systemd:
     name: "{{ restic_systemd_prune_service_prefix_name }}{{ item.name }}.timer"
     enabled: true
