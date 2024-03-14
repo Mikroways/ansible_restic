@@ -22,6 +22,9 @@ export B2_ACCOUNT_ID='{{ restic_repos[item.repo].b2_account_id }}'
 {% if restic_repos[item.repo].b2_account_key is defined %}
 export B2_ACCOUNT_KEY='{{ restic_repos[item.repo].b2_account_key }}'
 {% endif %}
+{% if restic_gomaxprocs is defined %}
+export GOMAXPROCS={{ restic_gomaxprocs }}
+{% endif %}
 BACKUP_NAME='{{ item.name }}'
 {% if item.src is defined %}
 BACKUP_SOURCE='{{ item.src }}'

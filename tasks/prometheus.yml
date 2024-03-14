@@ -17,7 +17,7 @@
       ansible.builtin.package:
         name: jq
 
-- name: Ensure prometehus metrics file can be created
+- name: Ensure prometheus metrics file can be created
   ansible.builtin.file:
     state: 'directory'
     path: '{{ restic_prometheus_exporter_metrics_basedir }}'
@@ -25,7 +25,7 @@
     owner: 'root'
     group: 'root'
 
-- name: Configure prometehus exporter script
+- name: Configure prometheus exporter script
   ansible.builtin.template:
     src: '{{ restic_prometheus_exporter_template }}'
     dest: '{{ restic_prometheus_exporter_script }}'
