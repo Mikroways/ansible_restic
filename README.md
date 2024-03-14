@@ -68,10 +68,10 @@ This scripts will be stored in a configurable scripts directory:
 | `restic_systemd_service_template` | `systemd_service.unit.j2` | Template for systemd restic backup service called by timer      |
 | `restic_systemd_failure_service_template` | `systemd_failure.unit.j2` | Template for systemd on error handling                  |
 | `restic_systemd_failure_service_name` | `restic-backup-failure@.service` | Name of systemd service to handle errors             |
-| `restic_prometehus_exporter_enabled` | `false` ||
-| `restic_prometehus_exporter_template`| `restic_prometehus_exporter.j2` ||
-| `restic_prometehus_exporter_script` | `{{ restic_script_dir }}/restic_prometehus_exporter.sh` ||
-| `restic_prometehus_exporter_metrics_basedir` | `/var/lib/node-exporter` ||
+| `restic_prometheus_exporter_enabled` | `false` ||
+| `restic_prometheus_exporter_template`| `restic_prometheus_exporter.j2` ||
+| `restic_prometheus_exporter_script` | `{{ restic_script_dir }}/restic_prometheus_exporter.sh` ||
+| `restic_prometheus_exporter_metrics_basedir` | `/var/lib/node-exporter` ||
 | `restic_failure_template` | `restic_failure_unit.j2` ||
 | `restic_failure_script` | `{{restic_script_dir }}/unit-failure` ||
 | `restic_failure_mail_to` | `root` ||
