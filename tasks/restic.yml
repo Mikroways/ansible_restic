@@ -1,30 +1,30 @@
 ---
 - name: Reformat dict if necessary
-  set_fact:
+  ansible.builtin.set_fact:
     restic_backups: '{{ restic_backups | dict2items | json_query("[*].value") }}'
   when:
     - restic_backups | type_debug == "dict"
 
 - name: "Set user and group to be used (non-root setup)"
-  set_fact:
+  ansible.builtin.set_fact:
     _restic_user: '{{ restic_non_root_setup_user }}'
     _restic_group: '{{ restic_dir_group }}'
   when: restic_non_root_setup | bool
 
 - name: "Set user and group to be used"
-  set_fact:
+  ansible.builtin.set_fact:
     _restic_user: '{{ restic_dir_owner }}'
     _restic_group: '{{ restic_dir_group }}'
   when: not restic_non_root_setup | bool
 
 - name: Create backup credentials
-  template:
+  ansible.builtin.template:
     src: '{{ restic_access_template }}'
     dest: '{{ restic_script_dir }}/access-{{ item.name }}.sh'
     mode: '0400'
     owner: '{{ _restic_user }}'
     group: '{{ _restic_group }}'
-      #  no_log: true
+    #  no_log: true
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined
@@ -33,7 +33,7 @@
     - item.repo in restic_repos
 
 - name: Create backup script
-  template:
+  ansible.builtin.template:
     src: '{{ restic_backup_template }}'
     dest: '{{ restic_script_dir }}/backup-{{ item.name }}.sh'
     mode: '0500'
@@ -47,7 +47,7 @@
     - item.repo in restic_repos
 
 - name: Create forget script
-  template:
+  ansible.builtin.template:
     src: '{{ restic_forget_template }}'
     dest: '{{ restic_script_dir }}/forget-{{ item.name }}.sh'
     mode: '0700'
@@ -63,14 +63,14 @@
 - name: Setup systemd
   block:
     - name: "Add unit failure script for restic"
-      template:
+      ansible.builtin.template:
         src: "{{ restic_failure_template }}"
         dest: "{{ restic_failure_script }}"
         mode: "0700"
         owner: root
         group: root
     - name: "Add systemd failure for restic"
-      template:
+      ansible.builtin.template:
         src: "{{ restic_systemd_failure_service_template }}"
         dest: "/etc/systemd/system/{{ restic_systemd_failure_service_name }}"
         mode: "0644"
@@ -81,5 +81,5 @@
       tags:
         - molecule-idempotence-notest
     - name: Create systemd units per backup
-      include_tasks: 'systemd.yml'
+      ansible.builtin.include_tasks: 'systemd.yml'
       with_items: '{{ restic_backups }}'

@@ -1,6 +1,6 @@
 ---
 - name: Download restic withouth verified checksum file
-  get_url:
+  ansible.builtin.get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
     checksum: "sha256:{{ restic_url_checksums }}/SHA256SUMS"
@@ -9,7 +9,7 @@
   when: restic_skip_checksum_verify
 
 - name: Download restic with verified checksum file
-  get_url:
+  ansible.builtin.get_url:
     url: '{{ restic_url }}'
     dest: '{{ restic_download_path }}/restic.bz2'
     checksum: "sha256:{{ restic_checksums }}"
@@ -18,12 +18,12 @@
   when: not restic_skip_checksum_verify
 
 - name: Check download
-  stat:
+  ansible.builtin.stat:
     path: '{{ restic_download_path }}/restic.bz2'
   register: file_status
 
 - name: Install restic
-  shell: |
+  ansible.builtin.shell: |
     bzip2 -dc {{ restic_download_path }}/restic.bz2 > {{ restic_bin_bath }} &&
     rm -f {{ restic_download_path }}/restic.bz2
   register: restic_install_cmd
@@ -31,7 +31,7 @@
   when: file_status.stat.exists
 
 - name: Ensure permissions are correct
-  file:
+  ansible.builtin.file:
     path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
     mode: '0755'
     owner: '{{ restic_dir_owner }}'
@@ -39,7 +39,7 @@
   when: not restic_non_root_setup | bool
 
 - name: Ensure permissions are correct (non-root setup)
-  file:
+  ansible.builtin.file:
     path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
     mode: '0750'
     owner: "{{ restic_non_root_setup_user }}"
@@ -47,26 +47,26 @@
   when: restic_non_root_setup | bool
 
 - name: Test the binary
-  shell: "{{ restic_bin_bath }} version | grep restic"
+  ansible.builtin.shell: "{{ restic_bin_bath }} version | grep restic"
   ignore_errors: true
   register: restic_test_result
   changed_when: true
 
 - name: Remove faulty binary
-  file:
+  ansible.builtin.file:
     path: '{{ restic_bin_bath }}'
     state: absent
   when: restic_test_result.rc != 0
 
 - name: Fail if restic could not be installed
-  fail:
+  ansible.builtin.fail:
     msg: >-
       Restic binary has been faulty and has been removed.
       Try to re-run the role and make sure you have bzip2 installed!
   when: restic_test_result.rc != 0
 
 - name: Create symbolic link to the correct version
-  file:
+  ansible.builtin.file:
     src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
     path: '{{ restic_install_path }}/restic'
     state: link
@@ -74,7 +74,7 @@
   when: not restic_non_root_setup | bool
 
 - name: Create symbolic link to the correct version (non-root setup)
-  file:
+  ansible.builtin.file:
     src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
     path: '{{ restic_install_path }}/restic'
     state: link

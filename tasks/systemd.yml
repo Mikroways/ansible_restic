@@ -1,11 +1,11 @@
 ---
 - name: "Fail when timer item.name not defined"
-  fail:
+  ansible.builtin.fail:
     msg: "you must define name for {{ item }}"
   when: item.name is not defined
 
 - name: "Add systemd service {{ item.name }}"
-  template:
+  ansible.builtin.template:
     src: "{{ restic_systemd_service_template }}"
     dest: "/etc/systemd/system/restic-{{ item.name }}.service"
     mode: "0644"
@@ -14,8 +14,8 @@
   notify:
     - Reload systemd
 
-- name: "Add systemd {{ item.name }} timer"
-  template:
+- name: "Add systemd timer {{ item.name }}"
+  ansible.builtin.template:
     src: "{{ restic_systemd_timer_template }}"
     dest: "/etc/systemd/system/restic-{{ item.name }}.timer"
     mode: "0644"
@@ -28,7 +28,7 @@
     - item.schedules | default([]) | length > 0
 
 - name: "Add systemd forget service {{ item.name }}"
-  template:
+  ansible.builtin.template:
     src: "{{ restic_systemd_forget_service_template }}"
     dest: "/etc/systemd/system/restic-forget-{{ item.name }}.service"
     mode: "0644"
@@ -37,8 +37,8 @@
   notify:
     - Reload systemd
 
-- name: "Add systemd forget {{ item.name }} timer"
-  template:
+- name: "Add systemd forget timer {{ item.name }}"
+  ansible.builtin.template:
     src: "{{ restic_systemd_forget_timer_template }}"
     dest: "/etc/systemd/system/restic-forget-{{ item.name }}.timer"
     mode: "0644"
@@ -50,7 +50,7 @@
     - restic_create_systemd_timer
     - item.forgetSchedules | default([]) | length > 0
 
-- name: "Enable systemd {{ item.name }} timer"
+- name: "Enable systemd timer {{ item.name }}"
   ansible.builtin.systemd:
     name: "restic-{{ item.name }}.timer"
     enabled: true
@@ -59,7 +59,7 @@
     - restic_create_systemd_timer
     - item.schedules | default([]) | length > 0
 
-- name: "Enable systemd forget {{ item.name }} timer"
+- name: "Enable systemd forget timer {{ item.name }}"
   ansible.builtin.systemd:
     name: "restic-forget-{{ item.name }}.timer"
     enabled: true

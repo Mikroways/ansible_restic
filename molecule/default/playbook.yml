@@ -10,25 +10,26 @@
         state: present
   vars:
     restic_skip_handlers: true
-    restic_download_path: ~/restic
-    restic_install_path: ~/restic
+    restic_download_path: /root/restic
+    restic_install_path: /root/restic
     restic_prometheus_exporter_enabled: True
     restic_create_systemd_timer: false
     restic_repos:
       local:
         location: /backup
         password: securepassword1
-        init: true
     restic_backups:
       - name: test
         src: /home
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
         schedules:
           - "*-*-* 00:00:00"
       - name: test_stdin
         repo: local
+        init: true
         stdin: true
         stdin_cmd: echo "this comes from stdin"
         stdin_filename: stdin.txt
@@ -71,11 +72,11 @@
         # This location should have write permissions!
         location: /home/restic/backup-local
         password: securepassword1
-        init: true
     restic_backups:
       - name: opt_stuff
         src: /opt
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
         schedules:
@@ -96,18 +97,18 @@
         state: present
   vars:
     restic_skip_handlers: true
-    restic_download_path: ~/restic
-    restic_install_path: ~/restic
+    restic_download_path: /root/restic
+    restic_install_path: /root/restic
     restic_repos:
       local:
         location: /backup
         password: securepassword1
-        init: true
     restic_backups:
       dicttest:
         name: dicttest
         src: /home
         repo: local
+        init: true
         keep_last: 4
         keep_tag: deployment
     restic_non_root_setup: false
